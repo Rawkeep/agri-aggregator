@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="appTitle">Agregateur de recoltes</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header id="app-header">
+  <h1 data-i18n="appTitle">Agregateur de recoltes</h1>
+  <div id="language-switcher">
+    <button type="button" id="lang-switch-fr" data-lang="fr">FR</button>
+    <button type="button" id="lang-switch-en" data-lang="en">EN</button>
+  </div>
+</header>
+
+<nav id="main-nav">
+  <button type="button" class="nav-btn" data-view="view-purchase" data-i18n="navPurchase">Achat</button>
+  <button type="button" class="nav-btn" data-view="view-inventory" data-i18n="navInventory">Stock</button>
+  <button type="button" class="nav-btn" data-view="view-sales" data-i18n="navSales">Vente</button>
+  <button type="button" class="nav-btn" data-view="view-loss" data-i18n="navLoss">Pertes</button>
+  <button type="button" class="nav-btn" data-view="view-pricing" data-i18n="navPricing">Prix</button>
+  <button type="button" class="nav-btn" data-view="view-csv" data-i18n="navCsv">Import/Export CSV</button>
+</nav>
+
+<main id="app-main">
+
+  <!-- ================= Ankaufserfassung + Auszahlungsbeleg ================= -->
+  <section id="view-purchase" class="view active">
+    <h2 data-i18n="purchaseTitle">Saisie de l'achat</h2>
+    <form id="purchase-form">
+      <div class="form-row">
+        <label for="purchase-farmer-id" data-i18n="farmer">Agriculteur</label>
+        <select id="purchase-farmer-id" required></select>
+      </div>
+      <div class="form-row">
+        <label for="purchase-product-id" data-i18n="product">Produit</label>
+        <select id="purchase-product-id" required></select>
+      </div>
+      <div class="form-row">
+        <label for="purchase-quality-grade" data-i18n="qualityGrade">Qualite</label>
+        <select id="purchase-quality-grade" required>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="purchase-weight-kg" data-i18n="weight">Poids</label>
+        <input type="number" id="purchase-weight-kg" min="0" step="0.01" required>
+      </div>
+      <div class="form-row">
+        <label for="purchase-price-per-kg" data-i18n="price">Prix</label>
+        <input type="number" id="purchase-price-per-kg" min="0" step="1" required>
+      </div>
+      <div class="form-row">
+        <label for="purchase-currency" data-i18n="currency">Devise</label>
+        <select id="purchase-currency" required>
+          <option value="XOF">XOF</option>
+          <option value="NGN">NGN</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="purchase-date" data-i18n="date">Date</label>
+        <input type="date" id="purchase-date" required>
+      </div>
+      <button type="submit" id="btn-record-purchase" data-i18n="recordPurchase">Enregistrer l'achat</button>
+    </form>
+
+    <div id="purchase-total-display">
+      <span data-i18n="price">Prix</span>:
+      <span id="purchase-total-amount">0</span>
+    </div>
+
+    <div id="payout-receipt-panel">
+      <h3 data-i18n="payoutReceipt">Recu de paiement</h3>
+      <button type="button" id="btn-print-receipt" data-i18n="printReceipt">Imprimer le recu</button>
+      <div id="agri-payout-receipt-root"></div>
+    </div>
+  </section>
+
+  <!-- ========================= Bestandsuebersicht ========================= -->
+  <section id="view-inventory" class="view">
+    <h2 data-i18n="stock">Stock</h2>
+    <table id="inventory-table">
+      <thead>
+        <tr>
+          <th data-i18n="product">Produit</th>
+          <th data-i18n="qualityGrade">Qualite</th>
+          <th data-i18n="weight">Poids</th>
+          <th data-i18n="price">Prix</th>
+        </tr>
+      </thead>
+      <tbody id="inventory-table-body"></tbody>
+    </table>
+  </section>
+
+  <!-- =================== Verkaufsbuchung mit Margen-Anzeige =============== -->
+  <section id="view-sales" class="view">
+    <h2 data-i18n="salesTitle">Saisie de la vente</h2>
+    <form id="sale-form">
+      <div class="form-row">
+        <label for="sale-buyer-id" data-i18n="buyer">Acheteur</label>
+        <select id="sale-buyer-id" required></select>
+      </div>
+      <div class="form-row">
+        <label for="sale-product-id" data-i18n="product">Produit</label>
+        <select id="sale-product-id" required></select>
+      </div>
+      <div class="form-row">
+        <label for="sale-quality-grade" data-i18n="qualityGrade">Qualite</label>
+        <select id="sale-quality-grade" required>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="sale-weight-kg" data-i18n="weight">Poids</label>
+        <input type="number" id="sale-weight-kg" min="0" step="0.01" required>
+      </div>
+      <div class="form-row">
+        <label for="sale-price-per-kg" data-i18n="price">Prix</label>
+        <input type="number" id="sale-price-per-kg" min="0" step="1" required>
+      </div>
+      <div class="form-row">
+        <label for="sale-currency" data-i18n="currency">Devise</label>
+        <select id="sale-currency" required>
+          <option value="XOF">XOF</option>
+          <option value="NGN">NGN</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="sale-date" data-i18n="date">Date</label>
+        <input type="date" id="sale-date" required>
+      </div>
+      <button type="submit" id="btn-record-sale" data-i18n="recordSale">Enregistrer la vente</button>
+    </form>
+
+    <div id="sale-margin-display">
+      <span data-i18n="margin">Marge</span>:
+      <span id="sale-margin-amount">0</span>
+    </div>
+  </section>
+
+  <!-- ============= Verlust-/Schwund-Erfassung + Post-Harvest-Loss-KPI ===== -->
+  <section id="view-loss" class="view">
+    <h2 data-i18n="lossTitle">Saisie de la perte</h2>
+    <form id="loss-form">
+      <div class="form-row">
+        <label for="loss-product-id" data-i18n="product">Produit</label>
+        <select id="loss-product-id" required></select>
+      </div>
+      <div class="form-row">
+        <label for="loss-quality-grade" data-i18n="qualityGrade">Qualite</label>
+        <select id="loss-quality-grade" required>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="loss-weight-kg" data-i18n="weight">Poids</label>
+        <input type="number" id="loss-weight-kg" min="0" step="0.01" required>
+      </div>
+      <div class="form-row">
+        <label for="loss-date" data-i18n="date">Date</label>
+        <input type="date" id="loss-date" required>
+      </div>
+      <div class="form-row">
+        <label for="loss-reason" data-i18n="reason">Motif</label>
+        <input type="text" id="loss-reason">
+      </div>
+      <button type="submit" id="btn-record-loss" data-i18n="recordLoss">Enregistrer la perte</button>
+    </form>
+
+    <div id="loss-kpi-panel">
+      <h3 data-i18n="postHarvestLossKpi">KPI de perte post-recolte</h3>
+      <div class="form-row">
+        <label for="loss-kpi-product-id" data-i18n="product">Produit</label>
+        <select id="loss-kpi-product-id"></select>
+      </div>
+      <div class="form-row">
+        <label for="loss-kpi-start-date" data-i18n="date">Date</label>
+        <input type="date" id="loss-kpi-start-date">
+      </div>
+      <div class="form-row">
+        <label for="loss-kpi-end-date" data-i18n="date">Date</label>
+        <input type="date" id="loss-kpi-end-date">
+      </div>
+      <button type="button" id="btn-compute-loss-kpi" data-i18n="computeKpi">Calculer</button>
+      <div id="loss-kpi-result">
+        <span data-i18n="postHarvestLossKpi">KPI de perte post-recolte</span>:
+        <span id="loss-kpi-value">0</span>&#8240;
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= Preispflege (Tag/Saison) ==================== -->
+  <section id="view-pricing" class="view">
+    <h2 data-i18n="pricingTitle">Gestion des prix</h2>
+    <form id="pricing-form">
+      <div class="form-row">
+        <label for="pricing-product-id" data-i18n="product">Produit</label>
+        <select id="pricing-product-id" required></select>
+      </div>
+      <div class="form-row">
+        <label for="pricing-quality-grade" data-i18n="qualityGrade">Qualite</label>
+        <select id="pricing-quality-grade" required>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="pricing-price-type" data-i18n="priceType">Type de prix</label>
+        <select id="pricing-price-type" required>
+          <option value="daily" data-i18n="dailyPrice">Prix du jour</option>
+          <option value="season" data-i18n="seasonPrice">Prix de saison</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="pricing-price-per-kg" data-i18n="price">Prix</label>
+        <input type="number" id="pricing-price-per-kg" min="0" step="1" required>
+      </div>
+      <div class="form-row">
+        <label for="pricing-currency" data-i18n="currency">Devise</label>
+        <select id="pricing-currency" required>
+          <option value="XOF">XOF</option>
+          <option value="NGN">NGN</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="pricing-date" data-i18n="date">Date</label>
+        <input type="date" id="pricing-date" required>
+      </div>
+      <button type="submit" id="btn-record-price" data-i18n="recordPrice">Enregistrer le prix</button>
+    </form>
+
+    <table id="pricing-table">
+      <thead>
+        <tr>
+          <th data-i18n="product">Produit</th>
+          <th data-i18n="qualityGrade">Qualite</th>
+          <th data-i18n="priceType">Type de prix</th>
+          <th data-i18n="price">Prix</th>
+          <th data-i18n="date">Date</th>
+        </tr>
+      </thead>
+      <tbody id="pricing-table-body"></tbody>
+    </table>
+  </section>
+
+  <!-- ==================== Stammdaten-Import/-Export (CSV) =================== -->
+  <section id="view-csv" class="view">
+    <h2 data-i18n="csvImportExport">Import/Export CSV</h2>
+
+    <div id="csv-farmers-panel" class="csv-panel">
+      <h3 data-i18n="farmer">Agriculteur</h3>
+      <button type="button" id="btn-export-farmers-csv" data-i18n="exportCsv">Exporter CSV</button>
+      <input type="file" id="farmer-csv-file-input" accept=".csv,text/csv">
+      <button type="button" id="btn-import-farmers-csv" data-i18n="importCsv">Importer CSV</button>
+    </div>
+
+    <div id="csv-buyers-panel" class="csv-panel">
+      <h3 data-i18n="buyer">Acheteur</h3>
+      <button type="button" id="btn-export-buyers-csv" data-i18n="exportCsv">Exporter CSV</button>
+      <input type="file" id="buyer-csv-file-input" accept=".csv,text/csv">
+      <button type="button" id="btn-import-buyers-csv" data-i18n="importCsv">Importer CSV</button>
+    </div>
+  </section>
+
+</main>
+
+<!--
+  Alle Module werden lokal per relativem Pfad ueber klassische <script>-Tags
+  eingebunden (keine Module-Bundler, kein CDN, keine externen Requests).
+  Reihenfolge beachtet Abhaengigkeiten: models/storage/i18n zuerst, dann die
+  fachlichen Module, zuletzt der Orchestrierungs-Layer app.js.
+-->
+<script src="js/models.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/purchase.js"></script>
+<script src="js/receipt.js"></script>
+<script src="js/inventory.js"></script>
+<script src="js/sales.js"></script>
+<script src="js/loss.js"></script>
+<script src="js/pricing.js"></script>
+<script src="js/csv.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

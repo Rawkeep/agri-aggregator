@@ -1,0 +1,216 @@
+/*
+ * style.css
+ *
+ * Basislayout und Komponenten-Styles fuer die agri-aggregator App-Shell
+ * (index.html). Enthaelt eine druckoptimierte @media print-Regel fuer den
+ * Auszahlungsbeleg (#agri-payout-receipt-root, dieselbe ID wie
+ * AgriReceipt.RECEIPT_ROOT_ID in js/receipt.js): beim Drucken wird
+ * ausschliesslich der Belegbereich sichtbar dargestellt, der Rest der
+ * App-Shell (Navigation, Formulare, Tabellen) wird ausgeblendet. Keine
+ * externen Web-Fonts oder Fremdanbieter-Auslieferungsnetzwerken --
+ * ausschliesslich lokale Styles.
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #1a1a1a;
+  background-color: #f5f5f0;
+}
+
+header#app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background-color: #2e5339;
+  color: #ffffff;
+}
+
+header#app-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+#language-switcher button {
+  margin-left: 6px;
+  padding: 6px 12px;
+  border: 1px solid #ffffff;
+  background-color: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+#language-switcher button.active-lang {
+  background-color: #ffffff;
+  color: #2e5339;
+  font-weight: bold;
+}
+
+nav#main-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 20px;
+  background-color: #d8e4d8;
+}
+
+nav#main-nav .nav-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 4px 4px 0 0;
+  background-color: #c1d2c1;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+nav#main-nav .nav-btn:hover {
+  background-color: #aec4ae;
+}
+
+main#app-main {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.view {
+  display: none;
+  background-color: #ffffff;
+  border: 1px solid #d0d0c8;
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.view.active {
+  display: block;
+}
+
+.view h2 {
+  margin-top: 0;
+  color: #2e5339;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+  max-width: 360px;
+}
+
+.form-row label {
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.form-row input,
+.form-row select {
+  padding: 6px 8px;
+  border: 1px solid #b8b8b0;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+button[type='submit'],
+button[type='button'] {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #2e5339;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.95rem;
+  margin-top: 8px;
+}
+
+button[type='submit']:hover,
+button[type='button']:hover {
+  background-color: #244028;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+table th,
+table td {
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 1px solid #e0e0d8;
+}
+
+table th {
+  background-color: #eef3ee;
+}
+
+#purchase-total-display,
+#sale-margin-display,
+#loss-kpi-result {
+  margin-top: 12px;
+  font-weight: bold;
+}
+
+#payout-receipt-panel {
+  margin-top: 20px;
+  border-top: 1px solid #d0d0c8;
+  padding-top: 12px;
+}
+
+.csv-panel {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0d8;
+}
+
+.csv-panel input[type='file'] {
+  margin: 8px 0;
+}
+
+/*
+ * Druckoptimierte Styles fuer den Auszahlungsbeleg: beim Drucken (bzw.
+ * "Als PDF speichern" im Browser-Druckdialog, siehe js/receipt.js) wird
+ * ausschliesslich #agri-payout-receipt-root sichtbar dargestellt.
+ */
+@media print {
+  header#app-header,
+  nav#main-nav,
+  #language-switcher,
+  .view > h2,
+  .view > form,
+  #purchase-total-display,
+  #btn-print-receipt,
+  #inventory-table,
+  #sale-margin-display,
+  #loss-kpi-panel,
+  #pricing-table,
+  .csv-panel {
+    display: none !important;
+  }
+
+  body,
+  main#app-main,
+  .view,
+  .view.active,
+  #payout-receipt-panel {
+    display: block !important;
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #agri-payout-receipt-root {
+    display: block !important;
+    width: 100%;
+  }
+}
