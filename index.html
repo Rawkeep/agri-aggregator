@@ -276,9 +276,12 @@
 <!--
   Alle Module werden lokal per relativem Pfad ueber klassische <script>-Tags
   eingebunden (keine Module-Bundler, kein CDN, keine externen Requests).
-  Reihenfolge beachtet Abhaengigkeiten: models/storage/i18n zuerst, dann die
-  fachlichen Module, zuletzt der Orchestrierungs-Layer app.js.
+  Reihenfolge beachtet Abhaengigkeiten: js/shared/offline-kit.js (geteilte
+  generische Storage-/i18n-/CSV-/Beleg-Engine, siehe js/shared/offline-kit.js)
+  zuerst, dann models/storage/i18n, dann die fachlichen Module, zuletzt der
+  Orchestrierungs-Layer app.js.
 -->
+<script src="js/shared/offline-kit.js"></script>
 <script src="js/models.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/i18n.js"></script>

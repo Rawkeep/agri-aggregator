@@ -7,19 +7,30 @@
  * Fuer Abnehmer wird das gleiche CSV-Grundformat mit sinnvoll angepassten
  * Spalten verwendet (siehe BUYER_CSV_COLUMNS).
  *
- * CSV-Escaping (Kommas, Anführungszeichen, Zeilenumbrueche in Feldern) wird
- * ohne externe Bibliotheken nach RFC4180-Prinzip selbst implementiert:
- * Felder, die ein Komma, ein Anfuehrungszeichen oder einen Zeilenumbruch
- * enthalten, werden in doppelte Anfuehrungszeichen gesetzt; enthaltene
- * doppelte Anfuehrungszeichen werden verdoppelt. Der Import parst dieses
- * Format wieder zurueck in Datensaetze und persistiert sie ueber die
- * Storage-Schicht (js/storage.js). Export gefolgt von Import ergibt bei
+ * Das generische CSV-Escaping/-Parsing (RFC4180-Prinzip: Felder mit Komma,
+ * Anfuehrungszeichen oder Zeilenumbruch werden in doppelte Anfuehrungszeichen
+ * gesetzt, enthaltene Anfuehrungszeichen werden zu doppelten
+ * Anfuehrungszeichen ("") verdoppelt) ist nach js/shared/offline-kit.js
+ * (OfflineKit.csv) ausgelagert -- identisch genutzt in 6 Rawkeep-Offline-
+ * Apps. Diese Datei haelt nur das agri-aggregator-eigene Spaltenschema und
+ * den Farmer-/Buyer-Export-/Import, und reicht das generische Escaping/
+ * Parsing unveraendert durch. Export gefolgt von Import ergibt bei
  * identischen Rohdaten identische Datensaetze (deterministische
  * Serialisierung/Deserialisierung). Keine externen Requests, keine
  * externen Bibliotheken.
  */
 (function (global) {
   'use strict';
+
+  function resolveOfflineKit() {
+    if (global.OfflineKit) {
+      return global.OfflineKit;
+    }
+    if (typeof require === 'function') {
+      return require('./shared/offline-kit.js');
+    }
+    throw new Error('OfflineKit (js/shared/offline-kit.js) ist nicht verfuegbar.');
+  }
 
   function resolveAgriModels() {
     if (global.AgriModels) {
@@ -41,6 +52,8 @@
     throw new Error('AgriStorage (js/storage.js) ist nicht verfuegbar.');
   }
 
+  var OfflineKit = resolveOfflineKit();
+
   // Exakte Spaltenreihenfolge fuer den Farmer-Export/-Import (siehe Auftrag).
   var FARMER_CSV_COLUMNS = [
     'farmer_id',
@@ -57,108 +70,36 @@
   // Spalten: buyer_id, name, typ, telefon, kontakt).
   var BUYER_CSV_COLUMNS = ['buyer_id', 'name', 'typ', 'telefon', 'kontakt'];
 
-  var CSV_LINE_BREAK = '\r\n';
-
   /**
-   * Escaped ein einzelnes CSV-Feld nach RFC4180-Prinzip: enthaelt der Wert
-   * ein Komma, ein Anfuehrungszeichen oder einen Zeilenumbruch (\n oder
-   * \r), wird das Feld in doppelte Anfuehrungszeichen gesetzt und
-   * enthaltene doppelte Anfuehrungszeichen werden verdoppelt.
+   * Escaped ein einzelnes CSV-Feld nach RFC4180-Prinzip (delegiert an
+   * OfflineKit.csv.csvEscapeField).
    */
   function csvEscapeField(value) {
-    var str = value === undefined || value === null ? '' : String(value);
-    var needsQuoting = /[",\n\r]/.test(str);
-    if (!needsQuoting) {
-      return str;
-    }
-    return '"' + str.replace(/"/g, '""') + '"';
+    return OfflineKit.csv.csvEscapeField(value);
   }
 
   /**
    * Baut eine einzelne CSV-Zeile (ohne Zeilenumbruch am Ende) aus einem
-   * Array von Rohwerten.
+   * Array von Rohwerten (delegiert an OfflineKit.csv.toCsvRow).
    */
   function toCsvRow(fields) {
-    return fields.map(csvEscapeField).join(',');
+    return OfflineKit.csv.toCsvRow(fields);
   }
 
   /**
    * Baut einen vollstaendigen CSV-Text aus Header-Spalten und Datenzeilen
-   * (Array von Arrays). Zeilen werden mit CRLF getrennt, keine
-   * abschliessende Leerzeile.
+   * (delegiert an OfflineKit.csv.buildCsv).
    */
   function buildCsv(headerColumns, rows) {
-    var lines = [toCsvRow(headerColumns)];
-    rows.forEach(function (row) {
-      lines.push(toCsvRow(row));
-    });
-    return lines.join(CSV_LINE_BREAK);
+    return OfflineKit.csv.buildCsv(headerColumns, rows);
   }
 
   /**
-   * Parst einen vollstaendigen CSV-Text in ein Array von Zeilen (jede
-   * Zeile ein Array von Rohfeld-Strings), ohne externe Bibliotheken.
-   * Unterstuetzt in Anfuehrungszeichen gesetzte Felder mit eingebetteten
-   * Kommas, Zeilenumbruechen (\n oder \r\n) und verdoppelten
-   * Anfuehrungszeichen als Escape fuer ein literales Anfuehrungszeichen.
+   * Parst einen vollstaendigen CSV-Text in ein Array von Zeilen (delegiert
+   * an OfflineKit.csv.parseCsv).
    */
   function parseCsv(text) {
-    var rows = [];
-    var row = [];
-    var field = '';
-    var inQuotes = false;
-    var str = typeof text === 'string' ? text : '';
-    var len = str.length;
-    var i = 0;
-
-    while (i < len) {
-      var ch = str.charAt(i);
-
-      if (inQuotes) {
-        if (ch === '"') {
-          if (str.charAt(i + 1) === '"') {
-            field += '"';
-            i += 2;
-          } else {
-            inQuotes = false;
-            i += 1;
-          }
-        } else {
-          field += ch;
-          i += 1;
-        }
-        continue;
-      }
-
-      if (ch === '"') {
-        inQuotes = true;
-        i += 1;
-      } else if (ch === ',') {
-        row.push(field);
-        field = '';
-        i += 1;
-      } else if (ch === '\r' || ch === '\n') {
-        row.push(field);
-        rows.push(row);
-        row = [];
-        field = '';
-        if (ch === '\r' && str.charAt(i + 1) === '\n') {
-          i += 2;
-        } else {
-          i += 1;
-        }
-      } else {
-        field += ch;
-        i += 1;
-      }
-    }
-
-    if (field.length > 0 || row.length > 0) {
-      row.push(field);
-      rows.push(row);
-    }
-
-    return rows;
+    return OfflineKit.csv.parseCsv(text);
   }
 
   function toAreaHaNumber(rawValue) {
@@ -170,12 +111,7 @@
   }
 
   function dataRowsOf(rows) {
-    if (rows.length === 0) {
-      return [];
-    }
-    return rows.slice(1).filter(function (r) {
-      return !(r.length === 1 && r[0] === '');
-    });
+    return OfflineKit.csv.dataRowsOf(rows);
   }
 
   // ---------------------------------------------------------------------

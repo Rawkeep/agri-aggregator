@@ -6,12 +6,27 @@
  * oder CDN-Ressourcen verwendet: der Beleg wird als druckoptimiertes
  * HTML/CSS-Fragment in den DOM eingehaengt, der Nutzer erzeugt die PDF-
  * Datei ueber den Browser-Druckdialog via window.print() ("Als PDF
- * speichern"). Beschriftungen sind FR/EN ueber js/i18n.js (AgriI18n).
+ * speichern"). Beschriftungen sind FR/EN ueber js/i18n.js (AgriI18n). Das
+ * generische HTML-Escaping, die Integer-Geldformatierung und der
+ * window.print()-DOM-Mechanismus sind nach js/shared/offline-kit.js
+ * (OfflineKit.receipt) ausgelagert -- identisch genutzt in 6 Rawkeep-
+ * Offline-Apps. Das eigentliche Beleg-Layout (buildPayoutReceiptHtml) bleibt
+ * hier, da es agri-aggregator-spezifische Felder/Labels enthaelt.
  */
 (function (global) {
   'use strict';
 
   var RECEIPT_ROOT_ID = 'agri-payout-receipt-root';
+
+  function resolveOfflineKit() {
+    if (global.OfflineKit) {
+      return global.OfflineKit;
+    }
+    if (typeof require === 'function') {
+      return require('./shared/offline-kit.js');
+    }
+    throw new Error('OfflineKit (js/shared/offline-kit.js) ist nicht verfuegbar.');
+  }
 
   function resolveAgriI18n() {
     if (global.AgriI18n) {
@@ -23,24 +38,23 @@
     throw new Error('AgriI18n (js/i18n.js) ist nicht verfuegbar.');
   }
 
+  var OfflineKit = resolveOfflineKit();
+
+  /**
+   * HTML-Escaping fuer Beleg-Feldwerte (delegiert an
+   * OfflineKit.receipt.escapeHtml).
+   */
   function escapeHtml(value) {
-    var str = value === undefined || value === null ? '' : String(value);
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
+    return OfflineKit.receipt.escapeHtml(value);
   }
 
   /**
    * Formatiert einen Geldbetrag (Integer, kleinste Waehrungseinheit) fuer
-   * die Anzeige. Reine Integer-/String-Operationen, kein parseFloat, kein
-   * toFixed.
+   * die Anzeige (delegiert an OfflineKit.receipt.formatMoney). Reine
+   * Integer-/String-Operationen, kein parseFloat, kein toFixed.
    */
   function formatMoney(amount, currency) {
-    var safeAmount = Number.isInteger(amount) ? amount : 0;
-    return String(safeAmount) + ' ' + String(currency || '');
+    return OfflineKit.receipt.formatMoney(amount, currency);
   }
 
   /**
@@ -106,26 +120,14 @@
    * Haengt den Auszahlungsbeleg als druckoptimiertes Fragment in den DOM
    * ein und startet den Browser-Druckdialog ueber window.print(). Der
    * Nutzer kann darueber "Als PDF speichern" waehlen -- es wird keine
-   * externe PDF-Bibliothek und kein CDN benoetigt.
+   * externe PDF-Bibliothek und kein CDN benoetigt. Der DOM-/
+   * window.print()-Mechanismus selbst ist an OfflineKit.receipt.printReceipt
+   * delegiert (js/shared/offline-kit.js): findet/erzeugt das Root-Element
+   * mit id agri-payout-receipt-root und setzt dessen innerHTML.
    */
   function printPayoutReceipt(purchase, farmer, product, lang) {
-    if (typeof global.document === 'undefined') {
-      throw new Error('printPayoutReceipt benoetigt eine Browser-Umgebung mit document.');
-    }
-    var doc = global.document;
-    var root = doc.getElementById(RECEIPT_ROOT_ID);
-    if (!root) {
-      root = doc.createElement('div');
-      root.id = RECEIPT_ROOT_ID;
-      doc.body.appendChild(root);
-    }
-    root.innerHTML = buildPayoutReceiptHtml(purchase, farmer, product, lang);
-
-    if (typeof window !== 'undefined' && typeof window.print === 'function') {
-      window.print();
-    }
-
-    return root;
+    var html = buildPayoutReceiptHtml(purchase, farmer, product, lang);
+    return OfflineKit.receipt.printReceipt(RECEIPT_ROOT_ID, html);
   }
 
   var AgriReceipt = {

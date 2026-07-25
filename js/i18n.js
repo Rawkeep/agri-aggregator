@@ -2,13 +2,29 @@
  * i18n.js
  *
  * Minimale i18n-Basis fuer agri-aggregator: Woerterbuch mit Franzoesisch (fr)
- * und Englisch (en) fuer die UI-Kernbegriffe, plus Uebersetzungsfunktion
- * t(key, lang) und Sprachumschaltung setLanguage/getLanguage mit
- * Persistenz in localStorage. Keine externen Requests, keine externen
+ * und Englisch (en) fuer die UI-Kernbegriffe. Die generische i18n-Engine
+ * (Uebersetzungsfunktion t(key, lang), Sprachumschaltung setLanguage/
+ * getLanguage mit Persistenz in localStorage) ist nach js/shared/
+ * offline-kit.js (OfflineKit.createI18n) ausgelagert -- identisch genutzt in
+ * 6 Rawkeep-Offline-Apps. Diese Datei haelt nur das agri-aggregator-eigene
+ * Woerterbuch (TRANSLATIONS) und reicht t/setLanguage/getLanguage
+ * unveraendert durch. Keine externen Requests, keine externen
  * i18n-Bibliotheken.
  */
 (function (global) {
   'use strict';
+
+  function resolveOfflineKit() {
+    if (global.OfflineKit) {
+      return global.OfflineKit;
+    }
+    if (typeof require === 'function') {
+      return require('./shared/offline-kit.js');
+    }
+    throw new Error('OfflineKit (js/shared/offline-kit.js) ist nicht verfuegbar.');
+  }
+
+  var OfflineKit = resolveOfflineKit();
 
   var LANGUAGE_STORAGE_KEY = 'agri_aggregator_lang';
   var SUPPORTED_LANGUAGES = ['fr', 'en'];
@@ -62,53 +78,38 @@
     priceType: { fr: 'Type de prix', en: 'Price Type' }
   };
 
-  function isSupportedLanguage(lang) {
-    return SUPPORTED_LANGUAGES.indexOf(lang) !== -1;
-  }
-
-  function hasLocalStorage() {
-    return typeof global.localStorage !== 'undefined' && global.localStorage !== null;
-  }
+  var engine = OfflineKit.createI18n({
+    languageStorageKey: LANGUAGE_STORAGE_KEY,
+    supportedLanguages: SUPPORTED_LANGUAGES,
+    defaultLanguage: DEFAULT_LANGUAGE,
+    translations: TRANSLATIONS
+  });
 
   /**
-   * Uebersetzt einen Schluessel in die angegebene Sprache. Ist die Sprache
-   * nicht angegeben, wird die aktuell gesetzte Sprache verwendet. Fehlt der
-   * Schluessel im Woerterbuch, wird der Schluessel selbst zurueckgegeben.
+   * Uebersetzt einen Schluessel in die angegebene Sprache (delegiert an
+   * OfflineKit.createI18n(...).t). Ist die Sprache nicht angegeben, wird die
+   * aktuell gesetzte Sprache verwendet. Fehlt der Schluessel im Woerterbuch,
+   * wird der Schluessel selbst zurueckgegeben.
    */
   function t(key, lang) {
-    var targetLang = isSupportedLanguage(lang) ? lang : getLanguage();
-    var entry = TRANSLATIONS[key];
-    if (!entry) {
-      return key;
-    }
-    return entry[targetLang] || entry[DEFAULT_LANGUAGE] || key;
+    return engine.t(key, lang);
   }
 
   /**
-   * Setzt die aktive UI-Sprache und persistiert die Wahl in localStorage.
+   * Setzt die aktive UI-Sprache und persistiert die Wahl in localStorage
+   * (delegiert an OfflineKit.createI18n(...).setLanguage).
    */
   function setLanguage(lang) {
-    if (!isSupportedLanguage(lang)) {
-      throw new Error('Nicht unterstuetzte Sprache: ' + lang + ' (erlaubt: fr, en).');
-    }
-    if (hasLocalStorage()) {
-      global.localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
-    }
-    return lang;
+    return engine.setLanguage(lang);
   }
 
   /**
    * Liest die aktive UI-Sprache aus localStorage; faellt auf
-   * DEFAULT_LANGUAGE zurueck, wenn nichts gespeichert oder ungueltig ist.
+   * DEFAULT_LANGUAGE zurueck, wenn nichts gespeichert oder ungueltig ist
+   * (delegiert an OfflineKit.createI18n(...).getLanguage).
    */
   function getLanguage() {
-    if (hasLocalStorage()) {
-      var stored = global.localStorage.getItem(LANGUAGE_STORAGE_KEY);
-      if (isSupportedLanguage(stored)) {
-        return stored;
-      }
-    }
-    return DEFAULT_LANGUAGE;
+    return engine.getLanguage();
   }
 
   var AgriI18n = {
