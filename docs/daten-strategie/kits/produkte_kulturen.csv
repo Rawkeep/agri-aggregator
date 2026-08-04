@@ -1,0 +1,7 @@
+produkt_id,name_fr,name_en,name_de,einheit,verderblichkeit,max_lagerdauer_tage,tagespreis_ankauf,tagespreis_verkauf,waehrung,hs_code,saison_von_monat,saison_bis_monat
+P-0001,Tomate,Tomato,Tomate,kg,hoch,5,250,400,XOF,070200,10,3
+P-0002,Mais,Maize,Mais,kg,lager,180,180,260,XOF,100590,8,11
+P-0003,Manioc,Cassava,Maniok,kg,mittel,14,120,200,XOF,071410,1,12
+P-0004,Soja,Soybean,Soja,kg,lager,240,320,450,XOF,120190,9,12
+P-0005,Oeufs,Eggs,Eier,stueck,mittel,21,90,130,XOF,040721,1,12
+P-0006,Aliment volaille,Poultry feed,Gefluegelfutter,sack25kg,lager,120,,9500,XOF,230990,1,12

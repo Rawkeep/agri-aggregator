@@ -1,0 +1,5 @@
+abnehmer_id,name,typ,ansprechpartner,telefon,ort,zahlungsziel_tage,verifiziert,bedarf_woche_kg,produkte
+B-0001,Supermarche Central,supermarkt,Mme Adjo,+22890100001,Lome,14,ja,500,tomate;gemuese
+B-0002,Hotel du Lac,hotel,M. Koffi,+22890100002,Lome,7,ja,120,gemuese;eier
+B-0003,Moulin Moderne,verarbeiter,M. Sena,+22890100003,Tsevie,30,nein,2000,mais
+B-0004,Export GmbH,exporteur,Frau Weber,+4915100000001,Hamburg,45,ja,10000,soja;cashew

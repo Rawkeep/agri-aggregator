@@ -1,0 +1,4 @@
+lager_id,name,typ,kapazitaet_kisten,soll_temp_min,soll_temp_max,tarif_pro_kiste_tag,waehrung,standort,stromquelle
+L-0001,Kuehlraum Markt,solar,400,2,8,100,XOF,Adetikope,solar
+L-0002,Trockenlager Halle,trocken,2000,,,25,XOF,Tsevie,netz
+L-0003,Beispiel Kuehlzelle,hybrid,150,0,4,150,XOF,Lome,netz+generator
