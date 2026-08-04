@@ -1,0 +1,5 @@
+geraet_id,name,typ,tarif_stunde,tarif_hektar,tarif_pro_kg_km,wartung_intervall_h,betriebsstunden,status,waehrung
+G-0001,Traktor MF 375,traktor,15000,45000,,250,1200,verfuegbar,XOF
+G-0002,Wasserpumpe Honda,pumpe,2500,,,100,340,verfuegbar,XOF
+G-0003,Kuehltransporter Hilux,kuehlfahrzeug,,,5,200,0,verfuegbar,XOF
+G-0004,Dreschmaschine,drescher,8000,20000,,150,80,wartung,XOF

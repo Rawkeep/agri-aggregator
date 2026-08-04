@@ -1,0 +1,4 @@
+farmer_id,name,telefon,dorf,h3_zelle,kulturen,flaeche_ha,zahlweg,einwilligung_datum,aktiv
+F-0001,Kossi Amevo,+22890000001,Tsikplonoukondji,,mais;tomate,1.5,mobile_money,2026-07-20,ja
+F-0002,Afi Mensah,+22890000002,Adetikope,,maniok;gemuese,0.8,cash,2026-07-20,ja
+F-0003,Beispiel Farmer,+22890000003,Tsevie,,soja;mais,2.0,mobile_money,2026-07-20,ja
