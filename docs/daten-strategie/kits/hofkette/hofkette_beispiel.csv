@@ -1,0 +1,8 @@
+schema,event_id,ts,station,event_type,lot_id,parent_lot_ids,ref_event_id,product,qty_x10,unit,quality,origin,amount_minor,currency,actor,note
+hofkette-v1,fm-in-b1-mais,2026-08-01T08:00:00Z,feed-mill,VERARBEITUNG_IN,RM-mais-2026-31,,fm-out-b1,mais,6000,kg,,farm,,,K. Mensah,
+hofkette-v1,fm-in-b1-soja,2026-08-01T08:00:00Z,feed-mill,VERARBEITUNG_IN,RM-soja-2026-31,,fm-out-b1,soja,3000,kg,,farm,,,K. Mensah,
+hofkette-v1,fm-out-b1,2026-08-01T11:00:00Z,feed-mill,VERARBEITUNG_OUT,FEED-b1,RM-mais-2026-31|RM-soja-2026-31,,aliment_ponte,8800,kg,,farm,,,K. Mensah,Mahlverlust 20 kg
+hofkette-v1,af-feed-log42,2026-08-02T00:00:00Z,agri-flock,VERBRAUCH,FEED-b1,,,aliment_ponte,1250,kg,,farm,,,,Herde Pondeuses A
+hofkette-v1,af-prod-flk1-2026-08-02,2026-08-02T00:00:00Z,agri-flock,PRODUKTION,EI-flk1-2026-08-02,,,oeufs,4380,stk,A,farm,,,,438 Eier
+hofkette-v1,af-ank-p7-2026-08-02,2026-08-02T00:00:00Z,agri-flock,ANKAUF,EI-partner7-2026-08-02,,,oeufs,2000,stk,B,partner:farm7,60000,XOF,,Zukauf 200 Eier Partner-Farm 7
+hofkette-v1,af-sale-rev9,2026-08-03T00:00:00Z,agri-flock,VERKAUF,EI-flk1-2026-08-02,,,oeufs,3000,stk,,farm,90000,XOF,,Hofladen
