@@ -168,6 +168,14 @@ kam aus Stall 2, gefüttert mit Charge M-2026-14 aus eigenem Mais" steht.
 
 ## 8. Bauplan (Reihenfolge nach Hebel) — Stand
 
+> **Finalisierung:** Die Schritte 1, 3 und 4 sind zu **einer App**
+> zusammengeführt — **`hof-app`** (`devteam/apps/hof-app`, 118 Tests):
+> Dashboard, Feld, Herden, Tageserfassung, Finanzen, Berichte und
+> Datenbrücke in einer Oberfläche mit einem gemeinsamen lokalen Speicher.
+> Die eigenen Hofkette-Belege entstehen deterministisch aus den lokalen
+> Daten; externe Stationen (feed-mill, agri-aggregator, Partner) docken
+> per CSV-Import an. Die drei Einzel-Werkstücke bleiben als Referenz.
+
 1. ✅ **`agri-flock`** — Stall/Herde + Investitionen/Ausgaben/Budget/Kosten
    je Ei (§3). *Werkstück in `devteam/apps/agri-flock` bis zum eigenen Repo.*
 2. ✅ **Datenbrücke** — Hofkette-v1 ([DATENBRUECKE.md](./DATENBRUECKE.md)):
