@@ -55,6 +55,12 @@
     recordPrice: { fr: 'Enregistrer le prix', en: 'Record Price' },
     csvImportExport: { fr: 'Import/Export CSV', en: 'CSV Import/Export' },
     exportCsv: { fr: 'Exporter CSV', en: 'Export CSV' },
+    bridgeTitle: { fr: 'Pont de donnees (Hofkette)', en: 'Data bridge (Hofkette)' },
+    bridgeHint: {
+      fr: 'Exporte achats et ventes comme justificatifs hofkette-v1 — a importer dans agri-trace / hof-dashboard.',
+      en: 'Exports purchases and sales as hofkette-v1 records — to be imported into agri-trace / hof-dashboard.'
+    },
+    exportHofkette: { fr: 'Exporter Hofkette', en: 'Export Hofkette' },
     importCsv: { fr: 'Importer CSV', en: 'Import CSV' },
     date: { fr: 'Date', en: 'Date' },
     reason: { fr: 'Motif', en: 'Reason' },

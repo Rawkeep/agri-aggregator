@@ -256,6 +256,12 @@
   <section id="view-csv" class="view">
     <h2 data-i18n="csvImportExport">Import/Export CSV</h2>
 
+    <div id="csv-hofkette-panel" class="csv-panel">
+      <h3 data-i18n="bridgeTitle">Pont de donnees (Hofkette)</h3>
+      <p data-i18n="bridgeHint">Exporte achats et ventes comme justificatifs hofkette-v1 — a importer dans agri-trace / hof-dashboard.</p>
+      <button type="button" id="btn-export-hofkette" data-i18n="exportHofkette">Exporter Hofkette</button>
+    </div>
+
     <div id="csv-farmers-panel" class="csv-panel">
       <h3 data-i18n="farmer">Agriculteur</h3>
       <button type="button" id="btn-export-farmers-csv" data-i18n="exportCsv">Exporter CSV</button>
@@ -289,6 +295,8 @@
 <script src="js/loss.js"></script>
 <script src="js/pricing.js"></script>
 <script src="js/csv.js"></script>
+<script src="js/hofkette.js"></script>
+<script src="js/bridge.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

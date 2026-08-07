@@ -1,0 +1,77 @@
+# esphome-silo.yaml — Getreidelager-Knoten (Hofplattform Sensorik-Kit, Stufe 5b)
+#
+# ESP32 + 3x DS18B20 (wasserdichte Messkette im Schuettkegel: oben/mitte/
+# unten) + DHT22 (Raumklima). Der wichtigste Sensor der Saisonlagerung:
+# Hotspots im Getreide entstehen nachts und am Wochenende.
+#
+# Alarm-Faustregeln (zentral im Server konfigurieren, nicht hier):
+#   Korntemperatur > 30 C          => Warnung
+#   Anstieg > 3 C je Woche          => Alarm (Hotspot)
+#   Raumfeuchte dauerhaft > 70 %    => pruefen (Kondenswasser/Undichtigkeit)
+#
+# Anpassen: wifi, mqtt.broker, dallas-Adressen nach dem ersten Boot aus dem
+# Log uebernehmen (jeder DS18B20 hat eine feste 64-Bit-Adresse).
+
+esphome:
+  name: silo-1
+  friendly_name: "Getreidelager 1"
+
+esp32:
+  board: esp32dev
+
+wifi:
+  ssid: "HOF-WLAN"
+  password: "HIER-ANPASSEN"
+  ap:
+    ssid: "silo-1 Setup"
+
+mqtt:
+  broker: 192.168.1.10
+  topic_prefix: hof/silo1
+
+ota:
+  - platform: esphome
+
+logger:
+  level: INFO
+
+# 1-Wire-Bus fuer die DS18B20-Messkette.
+one_wire:
+  - platform: gpio
+    pin: GPIO4
+
+sensor:
+  - platform: dallas_temp
+    address: 0x0000000000000001   # nach erstem Boot aus dem Log ersetzen
+    name: "Silo 1 Korn oben"
+    accuracy_decimals: 1
+    update_interval: 120s
+  - platform: dallas_temp
+    address: 0x0000000000000002   # ersetzen
+    name: "Silo 1 Korn mitte"
+    accuracy_decimals: 1
+    update_interval: 120s
+  - platform: dallas_temp
+    address: 0x0000000000000003   # ersetzen
+    name: "Silo 1 Korn unten"
+    accuracy_decimals: 1
+    update_interval: 120s
+
+  - platform: dht
+    model: DHT22
+    pin: GPIO5
+    temperature:
+      name: "Silo 1 Raumtemperatur"
+      accuracy_decimals: 1
+    humidity:
+      name: "Silo 1 Raumfeuchte"
+      accuracy_decimals: 0
+    update_interval: 120s
+
+  - platform: wifi_signal
+    name: "Silo 1 WLAN"
+    update_interval: 300s
+
+binary_sensor:
+  - platform: status
+    name: "Silo 1 Online"

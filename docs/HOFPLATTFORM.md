@@ -166,20 +166,28 @@ Bewegungen als Belege, die nächste importiert sie. Dann füllt sich
 `agri-trace` automatisch statt per Doppelerfassung, und die Kette „dieses Ei
 kam aus Stall 2, gefüttert mit Charge M-2026-14 aus eigenem Mais" steht.
 
-## 8. Bauplan (Reihenfolge nach Hebel)
+## 8. Bauplan (Reihenfolge nach Hebel) — Stand
 
-1. **`agri-flock`** — Stall/Herde + Investitionen/Ausgaben/Budget/Kosten je
-   Ei (dieses Dokument, §3). *Begonnen auf Branch
-   `claude/farm-automation-end-to-end-v2p3se`, Werkstück in
-   `devteam/apps/agri-flock` bis zum eigenen Repo.*
-2. **Datenbrücke** — gemeinsames Belegformat zwischen `agri-flock`,
-   `feed-mill`, `agri-aggregator`, `agri-trace`, Kasse.
-3. **Dashboard** — Kacheln + Alarmliste, MQTT-Ingest (ESPHome/Frigate).
-4. **`agri-field`** — schlankes Feldjournal (Parzelle → Ernte-Charge ans
-   Lager).
-5. **Sensorik-Stufe 1** — ESP32 in Stall + Getreidelager (~50–100 € Hardware,
-   größter Effekt: manuelle Temperaturkontrolle reißt nachts/am Wochenende).
-6. **Kamera-Stufe** — Frigate auf Mini-Server, Laden/Lager/Einfahrt/Stall außen.
+1. ✅ **`agri-flock`** — Stall/Herde + Investitionen/Ausgaben/Budget/Kosten
+   je Ei (§3). *Werkstück in `devteam/apps/agri-flock` bis zum eigenen Repo.*
+2. ✅ **Datenbrücke** — Hofkette-v1 ([DATENBRUECKE.md](./DATENBRUECKE.md)):
+   Sender `agri-field`, `feed-mill`, `agri-flock`, `agri-aggregator`;
+   Empfänger `agri-trace` (append-only, idempotent). Offen: Kasse
+   (`togo-pos`/`TchaAgro`) und `togo-logistics` als Sender.
+3. ✅ **Dashboard** — `devteam/apps/hof-dashboard`: Kacheln (Eier,
+   Futterreichweite, Getreidelager, Umsatz, Zukauf-Anteil, Deckungslücke)
+   + Alarmliste, gerechnet auf importierten Hofkette-Belegen. Offen:
+   MQTT-Ingest (Sensor-Ereignisse) — läuft bis dahin über die
+   Home-Assistant-/Node-RED-Schicht des Sensorik-Kits.
+4. ✅ **`agri-field`** — schlankes Feldjournal in `devteam/apps/agri-field`
+   (Parzelle → Ernte-Charge als `ERNTE`-Beleg).
+5. 🔩 **Sensorik-Stufe 1** — Software fertig als Kit
+   ([sensorik-kit/](./sensorik-kit/)): ESPHome-Konfigurationen für Stall +
+   Getreidelager-Messkette. Offen: Hardware kaufen und flashen
+   (~100–150 €, Einkaufsliste im Kit).
+6. 🔩 **Kamera-Stufe** — Frigate-Konfiguration fertig im selben Kit
+   (4 Kameras, Ereignis-Aufzeichnung, 10-Tage-Löschung). Offen: Kameras +
+   Mini-Server anschaffen.
 
 Vor jedem Hardware-Invest gelten die 10 Prüffragen aus
 [AGRI-PORTFOLIO.md](./AGRI-PORTFOLIO.md) §5.

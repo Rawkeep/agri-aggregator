@@ -556,8 +556,24 @@
     doc.getElementById('pricing-form').addEventListener('submit', handlePricingSubmit);
   }
 
+  // Datenbruecke: Ankaeufe + Verkaeufe als hofkette-v1-Belege exportieren
+  // (js/bridge.js baut die Belege deterministisch, hier nur Download).
+  function handleExportHofketteClick() {
+    var storage = AgriStorage();
+    Promise.all([
+      storage.listPurchases(), storage.listSales(), storage.listProducts()
+    ]).then(function (results) {
+      var Bridge = resolveModule('AgriBridge', './bridge.js');
+      var csv = Bridge.exportCsv({
+        purchases: results[0], sales: results[1], products: results[2]
+      });
+      downloadTextFile(csv, 'hofkette_agri-aggregator.csv');
+    });
+  }
+
   function wireCsvButtons() {
     var doc = global.document;
+    doc.getElementById('btn-export-hofkette').addEventListener('click', handleExportHofketteClick);
     doc.getElementById('btn-export-farmers-csv').addEventListener('click', handleExportFarmersCsvClick);
     doc.getElementById('btn-import-farmers-csv').addEventListener('click', handleImportFarmersCsvClick);
     doc.getElementById('btn-export-buyers-csv').addEventListener('click', handleExportBuyersCsvClick);

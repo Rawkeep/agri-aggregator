@@ -1,0 +1,87 @@
+# frigate-config.yml — Kamera-Ueberwachung (Hofplattform Sensorik-Kit, Stufe 6)
+#
+# Frigate NVR (github.com/blakeblackshear/frigate): lokale Objekterkennung,
+# Bilder verlassen den Hof nie. Vier Kameras: Laden, Futterlager,
+# Hofeinfahrt, Stall aussen. Aufzeichnung nur bei Ereignis, automatische
+# Loeschung nach 10 Tagen (Datenschutz).
+#
+# Anpassen: Kamera-IPs/RTSP-Zugangsdaten, mqtt.host. Start (Docker):
+#   docker run -d --name frigate --restart unless-stopped \
+#     -v ./frigate-config.yml:/config/config.yml -v ./media:/media/frigate \
+#     -p 5000:5000 -p 8554:8554 ghcr.io/blakeblackshear/frigate:stable
+
+mqtt:
+  host: 192.168.1.10
+  topic_prefix: hof/frigate
+
+# Ereignis-Aufzeichnung mit kurzer Frist — Dauerband bewusst aus.
+record:
+  enabled: true
+  retain:
+    days: 0            # kein Dauerband
+  alerts:
+    retain:
+      days: 10
+  detections:
+    retain:
+      days: 10
+
+snapshots:
+  enabled: true
+  retain:
+    default: 10
+
+detect:
+  fps: 5
+
+# Standard-Objekte; "dog"/"cat" fangen in der Praxis auch Fuchs/Marder-
+# Silhouetten — Feintuning spaeter ueber eigene Labels.
+objects:
+  track:
+    - person
+    - car
+    - dog
+    - cat
+    - bird
+
+cameras:
+  laden:
+    ffmpeg:
+      inputs:
+        - path: rtsp://user:pass@192.168.1.21:554/stream1
+          roles: [detect, record]
+    # Nachts zaehlt jede Person als Alarm; Geschaeftszeiten filtert die
+    # Regel-Schicht (Home Assistant/Node-RED) ueber das MQTT-Ereignis.
+    objects:
+      track: [person]
+
+  futterlager:
+    ffmpeg:
+      inputs:
+        - path: rtsp://user:pass@192.168.1.22:554/stream1
+          roles: [detect, record]
+    objects:
+      track: [person, car]
+
+  hofeinfahrt:
+    ffmpeg:
+      inputs:
+        - path: rtsp://user:pass@192.168.1.23:554/stream1
+          roles: [detect, record]
+    objects:
+      track: [person, car]
+
+  stall_aussen:
+    ffmpeg:
+      inputs:
+        - path: rtsp://user:pass@192.168.1.24:554/stream1
+          roles: [detect, record]
+    # Raeuber-Wache: Tier-Erkennung nachts am Auslauf.
+    objects:
+      track: [person, dog, cat, bird]
+
+# Optional: Google-Coral-USB fuer fluessige Erkennung (einkommentieren):
+# detectors:
+#   coral:
+#     type: edgetpu
+#     device: usb

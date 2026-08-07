@@ -1,0 +1,58 @@
+# esphome-stall.yaml — Stallklima-Knoten (Hofplattform Sensorik-Kit, Stufe 5a)
+#
+# ESP32 + DHT22: Temperatur + Luftfeuchte im Huehnerstall, alle 60 s per
+# MQTT an den lokalen Broker. Der Knoten misst nur — Alarm-Schwellen und
+# Push laufen zentral auf dem Mini-Server (Home Assistant / Node-RED).
+#
+# Anpassen: wifi.ssid/password, mqtt.broker, ggf. Pin des Sensors.
+# Flashen: esphome run esphome-stall.yaml
+
+esphome:
+  name: stall-klima-1
+  friendly_name: "Stall 1 Klima"
+
+esp32:
+  board: esp32dev
+
+wifi:
+  ssid: "HOF-WLAN"
+  password: "HIER-ANPASSEN"
+  # Ohne WLAN weiterlaufen und lokal ein Notfall-AP oeffnen:
+  ap:
+    ssid: "stall-klima-1 Setup"
+
+# Lokaler MQTT-Broker auf dem Mini-Server — KEINE Cloud.
+mqtt:
+  broker: 192.168.1.10
+  topic_prefix: hof/stall1
+
+# Kein Cloud-Logging; OTA-Updates nur im lokalen Netz.
+ota:
+  - platform: esphome
+
+logger:
+  level: INFO
+
+sensor:
+  - platform: dht
+    model: DHT22
+    pin: GPIO4
+    temperature:
+      name: "Stall 1 Temperatur"
+      id: stall_temp
+      accuracy_decimals: 1
+    humidity:
+      name: "Stall 1 Luftfeuchte"
+      id: stall_hum
+      accuracy_decimals: 0
+    update_interval: 60s
+
+  # WLAN-Signal mitmelden — stirbt der Knoten, merkt es der Server am
+  # ausbleibenden Heartbeat (Last-Will-Topic von MQTT).
+  - platform: wifi_signal
+    name: "Stall 1 WLAN"
+    update_interval: 300s
+
+binary_sensor:
+  - platform: status
+    name: "Stall 1 Online"
